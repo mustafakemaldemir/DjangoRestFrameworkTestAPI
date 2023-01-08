@@ -4,14 +4,54 @@ from rest_framework.decorators import api_view #function based views
 from rest_framework.views import APIView #class views
 from rest_framework.generics import get_object_or_404
 
-from restapiside.models import Article
-from restapiside.api.serializers import ArticleSerializer
+from restapiside.models import Article, Author
+from restapiside.api.serializers import ArticleSerializer, AuthorSerializer
 
 #CLASS BASED API VIEW
+class AuthorListCreateAPIView(APIView):
+    def get(self,request):
+        # articles = Article.objects.filter(activity_status=True)
+        authors = Author.objects.all()
+        serializer = AuthorSerializer(authors, many=True, context={'request':request})
+        return Response(serializer.data)
+    def post(self,request):
+        serializer = AuthorSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class AuthorIdListUpdateDeleteAPIView(APIView):
+    def get_object(self, pk):
+        author = get_object_or_404(Article,pk=pk)
+        return author
+    def get(self, request, pk):
+        author = self.get_object(pk=pk)
+        serializer = AuthorSerializer(author)
+        return Response(serializer.data)
+    def put(self, request, pk):
+        author = self.get_object(pk=pk)
+        serializer = AuthorSerializer(author, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk):
+        article = self.get_object(pk=pk)
+        article.delete()
+        return Response(
+            {
+                'process': {
+                    'code': 204,
+                    'message': f'Successfuly deleting for this id {pk}'
+                }
+            },
+            status=status.HTTP_204_NO_CONTENT
+        )
 class ArticleListCreateAPIView(APIView):
     def get(self,request):
-        articles = Article.objects.filter(activity_status=True)
-        # articles = Article.objects.all()
+        # articles = Article.objects.filter(activity_status=True)
+        articles = Article.objects.all()
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data)
     def post(self,request):
@@ -48,18 +88,6 @@ class ArticleIdListUpdateDeleteAPIView(APIView):
             },
             status=status.HTTP_204_NO_CONTENT
         )
-
-
-
-
-
-
-
-
-
-
-
-
 
 # #FUNCTION BASED API VIEWS EXAMPLE
 # @api_view(['GET', 'POST']) #function based
