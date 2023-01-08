@@ -27,3 +27,15 @@ class ArticleSerializer(serializers.Serializer):#create serializer so manuel mod
         instance.published_date = validated_data.get('published_date',instance.published_date)
         instance.save()
         return instance
+    def validate(self, data): #Custom validation "Object Level"
+        if data['title'] == data['comment']:
+            raise serializers.ValidationError(
+                'Title and comment not be same !'
+            )
+        return data
+    def validate_title(self, value): #Custom validation "Field Level"
+        if len(value) < 10:
+            raise serializers.ValidationError(
+                'Title length must be upper than 10 characters !'
+            )
+        return value
