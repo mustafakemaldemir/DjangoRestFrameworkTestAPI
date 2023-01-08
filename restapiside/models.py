@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 # Create your models here.
 class Author(models.Model):
     name = models.CharField(max_length=50)
@@ -15,6 +16,9 @@ class Article(models.Model):
     text = models.TextField()
     city = models.CharField(max_length=150)
     activity_status = models.BooleanField(max_length=150)
+    rating_point = models.PositiveIntegerField(
+        validators=[MinValueValidator(1),MaxValueValidator(5)],
+    )
     published_date = models.DateField(max_length=150)
     created_date = models.DateTimeField(auto_now_add=True) #otomatik oluşturduktan sonra değişiklik yapılamaz
     updated_date = models.DateTimeField(auto_now=True)
